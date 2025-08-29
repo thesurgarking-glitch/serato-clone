@@ -10,29 +10,38 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      # 1. Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Initialize JUCE submodule
       - name: Setup JUCE Submodule
         run: git submodule update --init --recursive
 
+      # 3. Create build folder
       - name: Create build folder
-        run: mkdir -p Builds/Mac && cd Builds/Mac
+        run: mkdir -p $GITHUB_WORKSPACE/Builds/Mac
 
+      # 4. Configure CMake
       - name: Configure CMake
-        run: cmake ../..
+        run: |
+          cd $GITHUB_WORKSPACE/Builds/Mac
+          cmake $GITHUB_WORKSPACE
 
+      # 5. Build plugin
       - name: Build plugin
-        run: cmake --build . --config Release
+        run: cmake --build $GITHUB_WORKSPACE/Builds/Mac --config Release
 
+      # 6. Package plugins
       - name: Package Plugins
         run: |
-          mkdir -p Release
-          cp -R Builds/Mac/Release/SeratoCloneSampler.vst3 Release/
-          cp -R Builds/Mac/Release/SeratoCloneSampler.clap Release/
+          mkdir -p $GITHUB_WORKSPACE/Release
+          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/SeratoCloneSampler.vst3 $GITHUB_WORKSPACE/Release/
+          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/SeratoCloneSampler.clap $GITHUB_WORKSPACE/Release/
 
+      # 7. Upload artifact
       - name: Upload Release Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SeratoCloneSampler-Plugins
-          path: Release/
+          path: $GITHUB_WORKSPACE/Release/
