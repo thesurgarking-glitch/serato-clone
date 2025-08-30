@@ -10,38 +10,40 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1. Checkout the repo
-      - name: Checkout repository
+      # 1️⃣ Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2. Initialize JUCE submodule
-      - name: Setup JUCE Submodule
+      # 2️⃣ Install CMake
+      - name: Install CMake
+        run: brew install cmake
+
+      # 3️⃣ Ensure JUCE submodules are initialized
+      - name: Update submodules
         run: git submodule update --init --recursive
 
-      # 3. Create build folder
-      - name: Create build folder
-        run: mkdir -p $GITHUB_WORKSPACE/Builds/Mac
+      # 4️⃣ Clean & create build folder
+      - name: Prepare build folder
+        run: rm -rf $GITHUB_WORKSPACE/Builds/Mac && mkdir -p $GITHUB_WORKSPACE/Builds/Mac
 
-      # 4. Configure CMake
+      # 5️⃣ Configure CMake with disabled VST2/AU
       - name: Configure CMake
-        run: |
-          cd $GITHUB_WORKSPACE/Builds/Mac
-          cmake $GITHUB_WORKSPACE
+        run: cmake -S $GITHUB_WORKSPACE -B $GITHUB_WORKSPACE/Builds/Mac -DJUCE_ENABLE_VST2=OFF -DJUCE_ENABLE_AU=OFF
 
-      # 5. Build plugin
+      # 6️⃣ Build the plugin
       - name: Build plugin
         run: cmake --build $GITHUB_WORKSPACE/Builds/Mac --config Release
 
-      # 6. Package plugins
-      - name: Package Plugins
+      # 7️⃣ Package plugins
+      - name: Package plugins
         run: |
-          mkdir -p $GITHUB_WORKSPACE/Release
-          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/SeratoCloneSampler.vst3 $GITHUB_WORKSPACE/Release/
-          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/SeratoCloneSampler.clap $GITHUB_WORKSPACE/Release/
+          mkdir -p Release
+          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/*.vst3 Release/
+          cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/*.clap Release/
 
-      # 7. Upload artifact
-      - name: Upload Release Artifact
+      # 8️⃣ Upload artifacts
+      - name: Upload plugins
         uses: actions/upload-artifact@v4
         with:
           name: SeratoCloneSampler-Plugins
-          path: $GITHUB_WORKSPACE/Release/
+          path: Release/
