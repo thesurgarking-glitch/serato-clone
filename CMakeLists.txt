@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ------------------------------
-# DISABLE UNUSED FORMATS
-# Must be set BEFORE add_subdirectory(JUCE)
+# Disable formats we don't want
+# Must be BEFORE add_subdirectory(JUCE)
 # ------------------------------
 set(JUCE_ENABLE_VST2 OFF CACHE BOOL "Disable VST2")
 set(JUCE_ENABLE_AU OFF CACHE BOOL "Disable AU")
