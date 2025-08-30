@@ -10,38 +10,30 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Install CMake
-      - name: Install CMake
-        run: brew install cmake
+      - name: Check CMake version
+        run: cmake --version
 
-      # 3️⃣ Ensure JUCE submodules are initialized
       - name: Update submodules
         run: git submodule update --init --recursive
 
-      # 4️⃣ Clean & create build folder
       - name: Prepare build folder
         run: rm -rf $GITHUB_WORKSPACE/Builds/Mac && mkdir -p $GITHUB_WORKSPACE/Builds/Mac
 
-      # 5️⃣ Configure CMake with disabled VST2/AU
       - name: Configure CMake
         run: cmake -S $GITHUB_WORKSPACE -B $GITHUB_WORKSPACE/Builds/Mac -DJUCE_ENABLE_VST2=OFF -DJUCE_ENABLE_AU=OFF
 
-      # 6️⃣ Build the plugin
       - name: Build plugin
         run: cmake --build $GITHUB_WORKSPACE/Builds/Mac --config Release
 
-      # 7️⃣ Package plugins
       - name: Package plugins
         run: |
           mkdir -p Release
           cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/*.vst3 Release/
           cp -R $GITHUB_WORKSPACE/Builds/Mac/Release/*.clap Release/
 
-      # 8️⃣ Upload artifacts
       - name: Upload plugins
         uses: actions/upload-artifact@v4
         with:
